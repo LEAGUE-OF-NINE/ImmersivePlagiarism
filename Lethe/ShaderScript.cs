@@ -14,6 +14,7 @@ namespace Bolus
         {
             Debug.Log("[ShaderSaver] LoginSceneManager.Start patch running...");
 
+            // below are all common shaders.
             CorrectingCustomShader.main_custom = TryFindShader("Fx_Team/Fx_Grp_MainCustom_Shader");
             CorrectingCustomShader.main_custom_pub = TryFindShader("Fx_Team/Fx_Grp_MainCustom_Pub_Shader");
             CorrectingCustomShader.compact_shader = TryFindShader("Fx_Team/Fx_Grp_Compact_Shader");
