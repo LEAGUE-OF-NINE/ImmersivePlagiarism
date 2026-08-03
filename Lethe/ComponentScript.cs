@@ -14,6 +14,8 @@ public class CorrectingCustomShader : MonoBehaviour
     public static Shader pub_distortion_master;
     const string easteregg = "Lookin' for something?";
     const string shaneandbolus = "We found it :D";
+    // Reference to an easter egg from Bolus's plugin.
+    
 
     public static Dictionary<string, Shader> allShaders = new();
 
