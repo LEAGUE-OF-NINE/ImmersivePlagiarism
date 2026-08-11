@@ -1,4 +1,4 @@
-# ImmersivePlagiarism
+# ImmersivePlagiarism (now open edition wow)
 
 Allows the usage of vanilla Shaders in your custom motions projects (or bundles if you're feelin' spicy.)
 
