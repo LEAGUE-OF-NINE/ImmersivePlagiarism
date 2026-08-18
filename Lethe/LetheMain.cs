@@ -1,7 +1,8 @@
 using BepInEx;
+using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
-using Il2CppInterop.Runtime.Injection;
 using HarmonyLib;
+using Il2CppInterop.Runtime.Injection;
 using Il2CppSystem.IO;
 
 namespace Bolus;
@@ -13,9 +14,12 @@ public class Main : BasePlugin
     public const string NAME = "ImmersivePlagiarism";
     public const string VERSION = "1.0.0";
     public const string AUTHOR = "ShaneAndDiesel";
+    public static ManualLogSource log;
     public override void Load()
     {
         Harmony harmony = new Harmony(VERSION);
+        log = new ManualLogSource(NAME);
+        BepInEx.Logging.Logger.Sources.Add(log);
         ClassInjector.RegisterTypeInIl2Cpp<CorrectingCustomShader>();
         harmony.PatchAll(typeof(ShaderSaver));
     }
