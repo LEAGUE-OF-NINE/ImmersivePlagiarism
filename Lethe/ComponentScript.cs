@@ -1,3 +1,4 @@
+using Bolus;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,7 +13,6 @@ public class CorrectingCustomShader : MonoBehaviour
     public static Shader colormask_noise_random;
     public static Shader main_custom_distortion;
     public static Shader pub_distortion_master;
-    public static Shader colormask_shader_0;
     const string easteregg = "Lookin' for something?";
     const string shaneandbolus = "We found it :D";
     // Reference to an easter egg from Bolus's plugin.
@@ -33,7 +33,7 @@ public class CorrectingCustomShader : MonoBehaviour
 
         if (materials == null || materials.Length == 0)
         {
-            Debug.LogWarning($"[CorrectingCustomShader] No materials found in array on '{base.gameObject.name}'.");
+            Main.log.LogWarning($"[CorrectingCustomShader] No materials found in array on '{base.gameObject.name}'.");
             return;
         }
 
@@ -49,7 +49,7 @@ public class CorrectingCustomShader : MonoBehaviour
 
             if (currentShaderName == "Hidden/InternalErrorShader")
             {
-                Debug.LogError($"[CorrectingCustomShader] '{base.gameObject.name}' loaded with 'Hidden/InternalErrorShader'. The AssetBundle failed to pack the dummy shader! (or, the plugin does not keep it loaded on ShaderScript.cs!)");
+                Main.log.LogError($"[CorrectingCustomShader] '{base.gameObject.name}' loaded with 'Hidden/InternalErrorShader'. The AssetBundle failed to pack the dummy shader! (or, the plugin does not keep it loaded on ShaderScript.cs!)");
                 continue;
             }
 
@@ -86,13 +86,9 @@ public class CorrectingCustomShader : MonoBehaviour
             {
                 ApplyShaderToMat(mat, pub_distortion_master, "pub_distortion_master", base.gameObject.name);
             }
-            else if (currentShaderName == "Fx_Team_Fx_Grp_Outline_ColorMask_Shader_0")
-            {
-                ApplyShaderToMat(mat, colormask_shader_0, "colormask_shader_0", base.gameObject.name);
-            }
             else
             {
-                Debug.LogWarning($"[CorrectingCustomShader] Unrecognized dummy shader '{currentShaderName}' on '{base.gameObject.name}'.");
+                Main.log.LogWarning($"[CorrectingCustomShader] Unrecognized dummy shader '{currentShaderName}' on '{base.gameObject.name}'.");
             }
         }
     }
@@ -106,7 +102,7 @@ public class CorrectingCustomShader : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[CorrectingCustomShader] [SWAP FAILED] Cannot swap on '{objName}': Static variable '{shaderVarName}' is NULL!");
+            Main.log.LogError($"[CorrectingCustomShader] [SWAP FAILED] Cannot swap on '{objName}': Static variable '{shaderVarName}' is NULL!");
         }
     }
 }
