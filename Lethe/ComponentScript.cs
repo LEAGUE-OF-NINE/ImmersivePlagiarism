@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,6 +12,7 @@ public class CorrectingCustomShader : MonoBehaviour
     public static Shader colormask_noise_random;
     public static Shader main_custom_distortion;
     public static Shader pub_distortion_master;
+    public static Shader colormask_shader_0;
     const string easteregg = "Lookin' for something?";
     const string shaneandbolus = "We found it :D";
     // Reference to an easter egg from Bolus's plugin.
@@ -48,7 +49,7 @@ public class CorrectingCustomShader : MonoBehaviour
 
             if (currentShaderName == "Hidden/InternalErrorShader")
             {
-                Debug.LogError($"[CorrectingCustomShader] '{base.gameObject.name}' loaded with 'Hidden/InternalErrorShader'. The AssetBundle failed to pack the dummy shader!");
+                Debug.LogError($"[CorrectingCustomShader] '{base.gameObject.name}' loaded with 'Hidden/InternalErrorShader'. The AssetBundle failed to pack the dummy shader! (or, the plugin does not keep it loaded on ShaderScript.cs!)");
                 continue;
             }
 
@@ -84,6 +85,10 @@ public class CorrectingCustomShader : MonoBehaviour
             else if (currentShaderName == "Shader Graphs/FX_S_Public_DistortionMaster1_N")
             {
                 ApplyShaderToMat(mat, pub_distortion_master, "pub_distortion_master", base.gameObject.name);
+            }
+            else if (currentShaderName == "Fx_Team_Fx_Grp_Outline_ColorMask_Shader_0")
+            {
+                ApplyShaderToMat(mat, colormask_shader_0, "colormask_shader_0", base.gameObject.name);
             }
             else
             {
