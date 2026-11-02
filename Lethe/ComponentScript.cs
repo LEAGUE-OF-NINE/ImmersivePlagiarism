@@ -1,7 +1,6 @@
 ﻿using Bolus;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class CorrectingCustomShader : MonoBehaviour
 {
@@ -9,187 +8,89 @@ public class CorrectingCustomShader : MonoBehaviour
     public static Shader main_custom_pub;
     public static Shader compact_shader;
     public static Shader colormask;
+    public static Shader noise_random_compact;
     public static Shader colormask_n_compact;
     public static Shader colormask_noise_random;
     public static Shader main_custom_distortion;
     public static Shader pub_distortion_master;
     public static Shader FX_Mat_0_Master_Dissolve_Distortion;
-    const string easteregg = "Lookin' for something?";
-    const string shaneandbolus = "We found it :D";
-    // Reference to an easter egg from Bolus's plugin.
 
     public void Awake()
     {
-        ParticleSystemRenderer renderer = base.gameObject.GetComponent<ParticleSystemRenderer>();
-        SkinnedMeshRenderer dieseledRenderer = base.gameObject.GetComponent<SkinnedMeshRenderer>();
-
-        if (renderer == null && dieseledRenderer == null)
+        Main.log.LogInfo($"[CorrectingCustomShader] Awake on '{base.gameObject.name}'");
+        foreach (var r in base.gameObject.GetComponentsInChildren<Renderer>(true))
         {
-            return;
+            var mats = r.materials;
+            if (mats == null) continue;
+            for (int i = 0; i < mats.Length; i++)
+                ProcessMaterial(mats[i]);
         }
-        Main.log.LogWarning("PAST NOT NULL CHECKS");
-        if (renderer != null)
-        {
-            Main.log.LogWarning("RENDERER PROCESSING");
-            Material[] materials = renderer.materials;
-
-            if (materials == null || materials.Length == 0)
-            {
-                Main.log.LogWarning($"[CorrectingCustomShader] No materials found in array on '{base.gameObject.name}'.");
-                return;
-            }
-
-            for (int i = 0; i < materials.Length; i++)
-            {
-                Material mat = materials[i];
-                if (mat == null || mat.shader == null) continue;
-
-                Shader currentShader = mat.shader;
-                string currentShaderName = currentShader.name;
-
-                // Debug.Log($"[CorrectingCustomShader] Inspecting '{base.gameObject.name}' [Mat Index {i}] | Material: '{mat.name}' | Current Shader: '{currentShaderName}'");
-
-                if (currentShaderName == "Hidden/InternalErrorShader")
-                {
-                    Main.log.LogError($"[CorrectingCustomShader] '{base.gameObject.name}' loaded with 'Hidden/InternalErrorShader'. The AssetBundle failed to pack the dummy shader! (or, the plugin does not keep it loaded on ShaderScript.cs!)");
-                    continue;
-                }
-
-                // Swap Logic applied directly to the material instance in the array
-                if (currentShaderName == "Fx_Team/Fx_Grp_Compact_Shader")
-                {
-                    ApplyShaderToMat(mat, compact_shader, "compact_shader", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Shader")
-                {
-                    ApplyShaderToMat(mat, main_custom, "main_custom", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Pub_Shader")
-                {
-                    ApplyShaderToMat(mat, main_custom_pub, "main_custom_pub", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader")
-                {
-                    ApplyShaderToMat(mat, colormask, "colormask", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader_N_Compact")
-                {
-                    ApplyShaderToMat(mat, colormask_n_compact, "colormask_n_compact", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader_Noise_Random_Compact")
-                {
-                    ApplyShaderToMat(mat, colormask_noise_random, "colormask_noise_random", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Distortion_Shader")
-                {
-                    ApplyShaderToMat(mat, main_custom_distortion, "main_custom_distortion", base.gameObject.name);
-                }
-                else if (currentShaderName == "Shader Graphs/FX_S_Public_DistortionMaster1_N")
-                {
-                    ApplyShaderToMat(mat, pub_distortion_master, "pub_distortion_master", base.gameObject.name);
-                }
-                else if (currentShaderName == "Shader Graphs/FX_Mat_0_Master_Dissolve_Distortion")
-                {
-                    ApplyShaderToMat(mat, FX_Mat_0_Master_Dissolve_Distortion, "master_dissolve_distortion", base.gameObject.name);
-                }
-                else
-                {
-                    Main.log.LogWarning($"[CorrectingCustomShader] Unrecognized dummy shader '{currentShaderName}' on '{base.gameObject.name}'.");
-                }
-            }
-
-        }
-        if (dieseledRenderer != null)
-        {
-            Main.log.LogWarning("DIESELEDRENDER WAS NOT NULL, PROCESSING");
-            Material[] dieseledMaterials = dieseledRenderer.materials;
-            if (dieseledMaterials == null || dieseledMaterials.Length == 0)
-            {
-                Main.log.LogWarning($"[CorrectingCustomShader] No materials found in array on '{base.gameObject.name}'.");
-                return;
-            }
-
-            for (int i = 0; i < dieseledMaterials.Length; i++)
-            {
-                Material mat = dieseledMaterials[i];
-                if (mat == null || mat.shader == null) continue;
-
-                Shader currentShader = mat.shader;
-                string currentShaderName = currentShader.name;
-
-                // Debug.Log($"[CorrectingCustomShader] Inspecting '{base.gameObject.name}' [Mat Index {i}] | Material: '{mat.name}' | Current Shader: '{currentShaderName}'");
-
-                if (currentShaderName == "Hidden/InternalErrorShader")
-                {
-                    Main.log.LogError($"[CorrectingCustomShader] '{base.gameObject.name}' loaded with 'Hidden/InternalErrorShader'. The AssetBundle failed to pack the dummy shader! (or, the plugin does not keep it loaded on ShaderScript.cs!)");
-                    continue;
-                }
-
-                // Swap Logic applied directly to the material instance in the array
-                if (currentShaderName == "Fx_Team/Fx_Grp_Compact_Shader")
-                {
-                    ApplyShaderToMat(mat, compact_shader, "compact_shader", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Shader")
-                {
-                    ApplyShaderToMat(mat, main_custom, "main_custom", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Pub_Shader")
-                {
-                    ApplyShaderToMat(mat, main_custom_pub, "main_custom_pub", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader")
-                {
-                    ApplyShaderToMat(mat, colormask, "colormask", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader_N_Compact")
-                {
-                    ApplyShaderToMat(mat, colormask_n_compact, "colormask_n_compact", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader_Noise_Random_Compact")
-                {
-                    ApplyShaderToMat(mat, colormask_noise_random, "colormask_noise_random", base.gameObject.name);
-                }
-                else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Distortion_Shader")
-                {
-                    ApplyShaderToMat(mat, main_custom_distortion, "main_custom_distortion", base.gameObject.name);
-                }
-                else if (currentShaderName == "Shader Graphs/FX_S_Public_DistortionMaster1_N")
-                {
-                    ApplyShaderToMat(mat, pub_distortion_master, "pub_distortion_master", base.gameObject.name);
-                }
-                else if (currentShaderName == "Shader Graphs/FX_Mat_0_Master_Dissolve_Distortion")
-                {
-                    Main.log.LogWarning("TRYING HEATHCLIFF SHADER");
-                    ApplyShaderToMat(mat, FX_Mat_0_Master_Dissolve_Distortion, "master_dissolve_distortion", base.gameObject.name);
-                }
-                else
-                {
-                    Main.log.LogWarning($"[CorrectingCustomShader] Unrecognized dummy shader '{currentShaderName}' on '{base.gameObject.name}'.");
-                }
-            }
-
-
-        }
-           
-
-       
     }
 
-    private void ApplyShaderToMat(Material mat, Shader targetShader, string shaderVarName, string objName)
+    private void ProcessMaterial(Material mat)
+    {
+        // yes this code sucks but im lazy
+        Main.log.LogInfo($"[CorrectingCustomShader] mat '{mat.name}' shader='{mat.shader?.name ?? "<null>"}' on '{base.gameObject.name}'");
+        if (mat == null || mat.shader == null) return;
+
+        string currentShaderName = mat.shader.name;
+
+        if (currentShaderName == "Hidden/InternalErrorShader") return;
+
+        if (currentShaderName == "Fx_Team/Fx_Grp_Compact_Shader")
+        {
+            ApplyShaderToMat(mat, compact_shader, "compact_shader");
+        }
+        else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Shader")
+        {
+            ApplyShaderToMat(mat, main_custom, "main_custom");
+        }
+        else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Pub_Shader")
+        {
+            ApplyShaderToMat(mat, main_custom_pub, "main_custom_pub");
+        }
+        else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader")
+        {
+            ApplyShaderToMat(mat, colormask, "colormask");
+        }
+        else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader_N_Compact")
+        {
+            ApplyShaderToMat(mat, colormask_n_compact, "colormask_n_compact");
+        }
+        else if (currentShaderName == "Fx_Team/Fx_Grp_Outline_ColorMask_Shader_Noise_Random_Compact")
+        {
+            ApplyShaderToMat(mat, colormask_noise_random, "colormask_noise_random");
+        }
+        else if (currentShaderName == "Fx_Team/Fx_Grp_MainCustom_Distortion_Shader")
+        {
+            ApplyShaderToMat(mat, main_custom_distortion, "main_custom_distortion");
+        }
+        else if (currentShaderName == "Shader Graphs/FX_S_Public_DistortionMaster1_N")
+        {
+            ApplyShaderToMat(mat, pub_distortion_master, "pub_distortion_master");
+        }
+        else if (currentShaderName == "Shader Graphs/FX_Mat_0_Master_Dissolve_Distortion")
+        {
+            ApplyShaderToMat(mat, FX_Mat_0_Master_Dissolve_Distortion, "master_dissolve_distortion");
+        }
+        else if (ShaderRegistry.TryGet(currentShaderName, out var registered))
+        {
+            mat.shader = registered;
+        }
+    }
+
+    private void ApplyShaderToMat(Material mat, Shader targetShader, string shaderVarName)
     {
         if (targetShader != null)
         {
             mat.shader = targetShader;
-           // Debug.Log($"[CorrectingCustomShader] [SWAP SUCCESS] Applied '{targetShader.name}' ({shaderVarName}) to material '{mat.name}' on '{objName}'!");
         }
         else
         {
-            Main.log.LogError($"[CorrectingCustomShader] [SWAP FAILED] Cannot swap on '{objName}': Static variable '{shaderVarName}' is NULL!");
+            Main.log.LogError($"[CorrectingCustomShader] [SWAP FAILED] Cannot swap on '{gameObject.name}': Static variable '{shaderVarName}' is NULL!");
         }
     }
 }
-
 /*
 Clear Material AssetBundle Tags
 The Culprit for Purple Meshes: Imported/ripped materials often hardcoded tags in the AssetBundle slot (e.g., bb7922...), so reassign to the main bundle. (Very fucking cool, right)

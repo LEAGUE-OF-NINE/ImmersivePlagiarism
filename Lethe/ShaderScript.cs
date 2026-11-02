@@ -1,8 +1,10 @@
 ﻿using System;
-using System.IO;
 using HarmonyLib;
 using MainUI;
 using UnityEngine;
+using Il2CppInterop.Runtime.Injection;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Bolus
 {
@@ -14,8 +16,6 @@ namespace Bolus
         {
             Main.log.LogInfo("[ShaderSaver] LoginSceneManager.Start patch running...");
 
-            // below are all common shaders.
-            CorrectingCustomShader.colormask_shader_0 = TryFindShader("Fx_Team_Fx_Grp_Outline_ColorMask_Shader_0");
             CorrectingCustomShader.main_custom = TryFindShader("Fx_Team/Fx_Grp_MainCustom_Shader");
             CorrectingCustomShader.main_custom_pub = TryFindShader("Fx_Team/Fx_Grp_MainCustom_Pub_Shader");
             CorrectingCustomShader.compact_shader = TryFindShader("Fx_Team/Fx_Grp_Compact_Shader");
@@ -25,38 +25,23 @@ namespace Bolus
             CorrectingCustomShader.main_custom_distortion = TryFindShader("Fx_Team/Fx_Grp_MainCustom_Distortion_Shader");
             CorrectingCustomShader.pub_distortion_master = TryFindShader("Shader Graphs/FX_S_Public_DistortionMaster1_N");
             CorrectingCustomShader.FX_Mat_0_Master_Dissolve_Distortion = TryFindShader("Shader Graphs/FX_Mat_0_Master_Dissolve_Distortion");
-            
-            
-            
-            Main.log.LogInfo("[ShaderSaver] Shader caching complete.");
+            CorrectingCustomShader.noise_random_compact = TryFindShader("Fx_Team/Fx_Grp_Outline_ColorMask_Shader_Noise_Random_Compact");
+        
+            ShaderRegistry.Prewarm();
+            Main.log.LogInfo("[ShaderSaver] Shader caching sequence complete.");
         }
 
-        /*
-        [HarmonyPatch(typeof(BattleObjectManager), nameof(BattleObjectManager.OnStageStart_Model))]
-        [HarmonyPostfix]
-        public static void BattleObjectManager_(BattleObjectManager __instance)
-        {
-            Main.log.LogInfo("[ShaderSaver] BattleObjectManager.OnStageStart_Model patch running...");
-            Main.log.LogInfo("[ShaderSaver] Point of " + __instance.Pointer);
-            // below are all common shaders that cant be loaded during login scene
-
-            Main.log.LogInfo("[ShaderSaver] Shader caching complete.");
-        }
-        */
-        private static Shader TryFindShader(string shaderName)
+        private static Shader TryFindShader(string shaderName, bool logIfMissing = true)
         {
             Shader foundShader = Shader.Find(shaderName);
-
             if (foundShader != null)
             {
                 foundShader.hideFlags = HideFlags.DontUnloadUnusedAsset;
-               // Debug.Log($"[ShaderSaver] [SUCCESS] Found & Cached: '{shaderName}'");
             }
-            else
+            else if (logIfMissing)
             {
                 Main.log.LogError($"[ShaderSaver] [FAILED] Could not find shader in game memory: '{shaderName}'!");
             }
-
             return foundShader;
         }
     }
